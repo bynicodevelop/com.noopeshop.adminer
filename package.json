@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "export FIRESTORE_EMULATOR_HOST='localhost:8080' && export FIREBASE_AUTH_EMULATOR_HOST='127.0.0.1:9099' && export FIREBASE_STORAGE_EMULATOR_HOST='0.0.0.0:9199' && nuxt dev",
+    "dev:prod": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "devDependencies": {
+    "@nuxt/content": "^2.0.1",
+    "@nuxtjs/tailwindcss": "^5.1.2",
+    "nuxt": "3.0.0-rc.3"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.6.4",
+    "@heroicons/vue": "^1.0.6",
+    "@tailwindcss/aspect-ratio": "^0.4.0",
+    "@tailwindcss/forms": "^0.5.2",
+    "@tailwindcss/typography": "^0.5.2",
+    "browser-image-compression": "^2.0.0",
+    "compressorjs": "^1.1.1",
+    "firebase": "^9.8.3",
+    "firebase-admin": "^10.3.0",
+    "firebase-functions": "^3.21.2",
+    "md5": "^2.3.0",
+    "yup": "^0.32.11"
+  }
+}

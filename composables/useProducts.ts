@@ -9,6 +9,7 @@ export const useProducts = () => {
     const description = ref("");
     const urlSource = ref("");
     const media = ref(null);
+    const variantes = ref([]);
 
     const products = ref([]);
 
@@ -34,20 +35,23 @@ export const useProducts = () => {
     }
 
     const onCreate = async (): Promise<void> => {
-        await useFetch(`/api/v1/products`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-            body: {
-                id: productId.value,
-                title: title.value,
-                description: description.value,
-                urlSource: urlSource.value,
-                media: media.value
-            }
-        });
+        // await useFetch(`/api/v1/products`, {
+        //     method: "POST",
+        //     headers: {
+        //         "Content-Type": "multipart/form-data",
+        //     },
+        //     body: {
+        //         id: productId.value,
+        //         title: title.value,
+        //         description: description.value,
+        //         urlSource: urlSource.value,
+        //         variantes: variantes.value.map(variante => (variante)),
+        //     }
+        // });
 
+        // TODO: ça récrase la première images de variante
+
+        console.log(variantes);
         success("Product created successfully");
     }
 
@@ -77,16 +81,28 @@ export const useProducts = () => {
         products.value = _.filter(products.value, (p) => p.id !== product.id);
     }
 
+    const addVariante = () => variantes.value.push({
+        type: "",
+        name: "",
+        price: 0,
+        images: null,
+    });
+
+    const onDeleteVariante = (index: number) => variantes.value.splice(index, 1);
+
     return {
         title,
         description,
         urlSource,
         media,
+        variantes,
         products,
         onLoadAll,
         onGetProduct,
         onCreate,
         onUpdated,
         onDelete,
+        addVariante,
+        onDeleteVariante,
     }
 }

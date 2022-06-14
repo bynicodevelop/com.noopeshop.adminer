@@ -21,8 +21,32 @@ export class ProductRepository {
         }
     }
 
-    async create(data: { title: string, description: string, urlSource: string, media: Array<string> }) {
-        const productRef = await firestore.collection('products').add(data);
+    async create(data: { title: string, description: string, urlSource: string, variantes: Array<any> }) {
+        const { title, description, urlSource, variantes } = data;
+
+        const date = new Date();
+
+        const productRef = await firestore.collection('products').add({
+            title,
+            description,
+            urlSource,
+            createdAt: date,
+            updateAt: date,
+        });
+
+        for (let index = 0; index < variantes.length; index++) {
+            const { type, name, price, pathesFile } = variantes[index];
+
+            await firestore.collection('products').doc(productRef.id).collection('variantes').add({
+                type,
+                name,
+                price,
+                media: pathesFile,
+                mediaType: "MediaTypeEnum.image",
+                createdAt: date,
+                updateAt: date,
+            })
+        }
 
         return productRef.id;
     }

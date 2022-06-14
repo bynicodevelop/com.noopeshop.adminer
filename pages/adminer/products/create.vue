@@ -78,7 +78,7 @@
               </label>
               <div class="mt-1">
                 <input
-                    v-model="urlSource"
+                  v-model="urlSource"
                   type="text"
                   name="url-source"
                   id="url-source"
@@ -95,7 +95,7 @@
               </div>
             </div>
 
-            <div class="sm:col-span-6">
+            <!-- <div class="sm:col-span-6">
               <label
                 for="cover-photo"
                 class="block text-sm font-medium text-gray-700"
@@ -161,7 +161,62 @@
                   <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
                 </div>
               </div>
+            </div> -->
+          </div>
+        </div>
+
+        <div>
+          <div
+            class="
+              mt-8
+              pb-5
+              border-b border-gray-200
+              sm:flex sm:items-center sm:justify-between
+            "
+          >
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+              Variantes
+            </h3>
+            <div class="mt-3 flex sm:mt-0 sm:ml-4">
+              <button
+                @click.prevent="addVariante"
+                type="button"
+                class="
+                  ml-3
+                  inline-flex
+                  items-center
+                  px-4
+                  py-2
+                  border border-transparent
+                  rounded-md
+                  shadow-sm
+                  text-sm
+                  font-medium
+                  text-white
+                  bg-indigo-600
+                  hover:bg-indigo-700
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-offset-2
+                  focus:ring-indigo-500
+                "
+              >
+                Create
+              </button>
             </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4">
+            <Variante
+              v-for="(variante, index) in variantes"
+              :key="index"
+              :index="index"
+              v-model:type="variante['type']"
+              v-model:name="variante['name']"
+              v-model:price="variante['price']"
+              v-model:images="variante['images']"
+              :close="onClose(index)"
+            />
           </div>
         </div>
       </div>
@@ -199,30 +254,7 @@
 </template>
 
 <script setup>
-const { compressImage } = useMedia();
+const onClose = (index) => () => onDeleteVariante(index)
 
-const { title, description, urlSource, media, onCreate } = useProducts();
-
-const onFileChange = async (e) => {
-  let files = e.target.files;
-
-  const readData = (f) =>  new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(f);
-  });
-
-
-  const compressedImages = await Promise.all(Array.from(files).map(async (file) => ({
-    type: file.type,
-    size: file.size,
-    name: file.name,
-    data: await compressImage(file)
-  })));
-
-  media.value = await Promise.all(compressedImages.map(async (img) => ({
-    ...img,
-    data: await readData(img.data),
-  })));
-};
+const { title, description, urlSource, media, variantes, onCreate, onDeleteVariante, addVariante } = useProducts();
 </script>

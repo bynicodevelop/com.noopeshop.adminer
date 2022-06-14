@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { MediaRepository } from '~~/repositories/MediaRepository';
-import { firestore } from '~~/utils/firebase';
+import { firestore, logger } from '~~/utils/firebase';
 
 export class ProductRepository {
     async getAll() {
@@ -17,23 +17,33 @@ export class ProductRepository {
     async getById(id: string): Promise<any> {
         const product = await firestore.collection('products').doc(id).get();
 
+        const variantes = await product.ref.collection('variantes').get()
+
         return {
             id: product.id,
-            ...product.data()
+            ...product.data(),
+            variantes: variantes.docs.map(doc =>
+            ({
+                id: doc.id,
+                ...doc.data()
+            }))
         }
     }
 
-    // async createOrUpdate(data: { uid?: string, title: string, description: string, urlSource: string }): Promise<string> {
-    //     const { uid, title, description, urlSource } = data;
+    async createOrUpdate(data: { uid?: string, title: string, description: string, urlSource: string, variantes: any[] }): Promise<string> {
+        const { uid, title, description, urlSource, variantes } = data;
 
-    //     if (!_.isEmpty(uid)) {
-    //         await this.update(uid, { title, description, urlSource });
+        if (!_.isEmpty(uid)) {
+            return this.update(uid, {
+                title,
+                description,
+                urlSource,
+                variantes
+            });
+        }
 
-    //         return uid;
-    //     }
-
-    //     return this.create({ title, description, urlSource });
-    // }
+        return this.create(data);
+    }
 
     async create(data: { title: string, description: string, urlSource: string, variantes: any[] }): Promise<string> {
         const { title, description, urlSource, variantes } = data;
@@ -69,11 +79,59 @@ export class ProductRepository {
         return productRef.id;
     }
 
-    async update(id: string, data: { title: string, description: string, urlSource: String }) {
+    async update(id: string, data: { title: string, description: string, urlSource: String, variantes: any[] }) {
+        const { title, description, urlSource, variantes } = data;
+
+        logger.info("Update product", { id, title, description, urlSource, variantes });
+
+        const mediaRepository = new MediaRepository();
+
+        const date = new Date();
+
         await firestore.collection('products').doc(id).update({
-            ...data,
-            updatedAt: new Date()
+            title,
+            description,
+            urlSource,
+            updateAt: date,
         });
+
+        for (let index = 0; index < variantes.length; index++) {
+            const { id: varianteId, type, name, price, images } = variantes[index];
+
+            logger.info("Update variante", { id: varianteId, type, name, price, images });
+
+            let pathesFile = [];
+
+            if (!_.isEmpty(images)) {
+                pathesFile = await mediaRepository.upload(images);
+            }
+
+            const updateData = <any>{
+                type,
+                name,
+                price,
+                mediaType: "MediaTypeEnum.image",
+                updateAt: date,
+            }
+
+            if (!_.isEmpty(pathesFile)) {
+                updateData.media = pathesFile;
+            }
+
+            if (!_.isEmpty(varianteId)) {
+                updateData.updateAt = date;
+
+                await firestore.collection('products').doc(id).collection('variantes').doc(varianteId).update(updateData);
+
+                continue;
+            }
+
+            updateData.createdAt = date;
+
+            await firestore.collection('products').doc(id).collection('variantes').add(updateData);
+        }
+
+        return id;
     }
 
     async delete(id: string): Promise<void> {

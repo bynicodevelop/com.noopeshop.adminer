@@ -25,14 +25,13 @@ export const useProducts = () => {
 
         const { data } = await useFetch<any>(`/api/v1/products/${id}`);
 
-        console.log(data.value.data);
-
-        const { id: uid, title: productTitle, description: productDescription, urlSource: productUrlSource } = data.value.data
+        const { id: uid, title: productTitle, description: productDescription, urlSource: productUrlSource, variantes: productVariante } = data.value.data
 
         productId.value = uid;
         title.value = productTitle;
         description.value = productDescription;
         urlSource.value = productUrlSource;
+        variantes.value = productVariante;
     }
 
     const onCreate = async (): Promise<void> => {
@@ -50,9 +49,6 @@ export const useProducts = () => {
             }
         });
 
-        // TODO: ça récrase la première images de variante
-
-        console.log(variantes);
         success("Product created successfully");
     }
 
@@ -67,7 +63,7 @@ export const useProducts = () => {
                 title: title.value,
                 description: description.value,
                 urlSource: urlSource.value,
-                media: media.value
+                variantes: variantes.value.map(variante => (variante)),
             }
         });
 

@@ -254,7 +254,7 @@
 </template>
 
 <script setup>
-const onClose = (index) => () => onDeleteVariante(index)
-
 const { title, description, urlSource, media, variantes, onCreate, onDeleteVariante, addVariante } = useProducts();
+
+const onClose = (index) => () => onDeleteVariante(index)
 </script>

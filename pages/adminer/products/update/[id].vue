@@ -1,6 +1,9 @@
 <template>
   <NuxtLayout name="adminer">
-    <form @submit.prevent="onUpdated" class="space-y-8 divide-y divide-gray-200">
+    <form
+      @submit.prevent="onUpdated"
+      class="space-y-8 divide-y divide-gray-200"
+    >
       <div class="space-y-8 divide-y divide-gray-200">
         <div>
           <div>
@@ -78,7 +81,7 @@
               </label>
               <div class="mt-1">
                 <input
-                    v-model="urlSource"
+                  v-model="urlSource"
                   type="text"
                   name="url-source"
                   id="url-source"
@@ -164,6 +167,61 @@
             </div> -->
           </div>
         </div>
+
+        <div>
+          <div
+            class="
+              mt-8
+              pb-5
+              border-b border-gray-200
+              sm:flex sm:items-center sm:justify-between
+            "
+          >
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+              Variantes
+            </h3>
+            <div class="mt-3 flex sm:mt-0 sm:ml-4">
+              <button
+                @click.prevent="addVariante"
+                type="button"
+                class="
+                  ml-3
+                  inline-flex
+                  items-center
+                  px-4
+                  py-2
+                  border border-transparent
+                  rounded-md
+                  shadow-sm
+                  text-sm
+                  font-medium
+                  text-white
+                  bg-indigo-600
+                  hover:bg-indigo-700
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-offset-2
+                  focus:ring-indigo-500
+                "
+              >
+                Create
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4">
+            <Variante
+              v-for="(variante, index) in variantes"
+              :key="index"
+              :id="`variante-${index}`"
+              v-model:type="variante['type']"
+              v-model:name="variante['name']"
+              v-model:price="variante['price']"
+              v-model:images="variante['images']"
+              :close="onClose(index)"
+            />
+          </div>
+        </div>
       </div>
 
       <div class="pt-5">
@@ -199,7 +257,19 @@
 </template>
 
 <script setup>
-const { title, description, urlSource, media, onGetProduct, onUpdated } = useProducts();
+const {
+  title,
+  description,
+  urlSource,
+  media,
+  variantes,
+  onGetProduct,
+  onUpdated,
+  onDeleteVariante,
+  addVariante,
+} = useProducts();
 
 await onGetProduct();
+
+const onClose = (index) => () => onDeleteVariante(index);
 </script>

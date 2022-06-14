@@ -1,5 +1,4 @@
 import yup from 'yup';
-import { MediaRepository } from '~~/repositories/MediaRepository';
 import { ProductRepository } from '~~/repositories/ProductRepository';
 
 const schemaProduct = yup.object().shape({
@@ -45,19 +44,9 @@ export default defineEventHandler(async (event) => {
         return {}
     }
 
-    // const mediaRepository = new MediaRepository();
-
-    // const variantesData = await Promise.all(await variantes.map(async variante => {
-    //     const pathesFile = await mediaRepository.upload(variante.images);
-
-    //     variante.pathesFile = pathesFile;
-
-    //     return variante;
-    // }));
-
     const productRepository = new ProductRepository();
 
-    await productRepository.create({
+    await productRepository.createOrUpdate({
         title,
         description,
         urlSource,

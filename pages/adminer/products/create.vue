@@ -210,7 +210,7 @@
             <Variante
               v-for="(variante, index) in variantes"
               :key="index"
-              :index="index"
+              :id="`variante-${index}`"
               v-model:type="variante['type']"
               v-model:name="variante['name']"
               v-model:price="variante['price']"

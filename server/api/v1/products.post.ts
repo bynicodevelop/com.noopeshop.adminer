@@ -45,15 +45,15 @@ export default defineEventHandler(async (event) => {
         return {}
     }
 
-    const mediaRepository = new MediaRepository();
+    // const mediaRepository = new MediaRepository();
 
-    const variantesData = await Promise.all(await variantes.map(async variante => {
-        const pathesFile = await mediaRepository.upload(variante.images);
+    // const variantesData = await Promise.all(await variantes.map(async variante => {
+    //     const pathesFile = await mediaRepository.upload(variante.images);
 
-        variante.pathesFile = pathesFile;
+    //     variante.pathesFile = pathesFile;
 
-        return variante;
-    }));
+    //     return variante;
+    // }));
 
     const productRepository = new ProductRepository();
 
@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
         title,
         description,
         urlSource,
-        variantes: variantesData,
+        variantes,
     });
 
     return {}

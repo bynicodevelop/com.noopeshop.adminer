@@ -1,4 +1,6 @@
-import { firestore, storage } from '~~/utils/firebase';
+import _ from 'lodash';
+import { MediaRepository } from '~~/repositories/MediaRepository';
+import { firestore } from '~~/utils/firebase';
 
 export class ProductRepository {
     async getAll() {
@@ -21,8 +23,22 @@ export class ProductRepository {
         }
     }
 
-    async create(data: { title: string, description: string, urlSource: string, variantes: Array<any> }) {
+    // async createOrUpdate(data: { uid?: string, title: string, description: string, urlSource: string }): Promise<string> {
+    //     const { uid, title, description, urlSource } = data;
+
+    //     if (!_.isEmpty(uid)) {
+    //         await this.update(uid, { title, description, urlSource });
+
+    //         return uid;
+    //     }
+
+    //     return this.create({ title, description, urlSource });
+    // }
+
+    async create(data: { title: string, description: string, urlSource: string, variantes: any[] }): Promise<string> {
         const { title, description, urlSource, variantes } = data;
+
+        const mediaRepository = new MediaRepository();
 
         const date = new Date();
 
@@ -35,7 +51,9 @@ export class ProductRepository {
         });
 
         for (let index = 0; index < variantes.length; index++) {
-            const { type, name, price, pathesFile } = variantes[index];
+            const { type, name, price, images } = variantes[index];
+
+            const pathesFile = await mediaRepository.upload(images);
 
             await firestore.collection('products').doc(productRef.id).collection('variantes').add({
                 type,
@@ -51,7 +69,7 @@ export class ProductRepository {
         return productRef.id;
     }
 
-    async update(id: string, data: { title: string, description: string, urlSource: string/*, media: Array<string>*/ }) {
+    async update(id: string, data: { title: string, description: string, urlSource: String }) {
         await firestore.collection('products').doc(id).update({
             ...data,
             updatedAt: new Date()

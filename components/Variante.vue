@@ -134,7 +134,7 @@
               </svg>
               <div class="flex text-sm text-gray-600">
                 <label
-                  for="file-upload"
+                  :for="`${props.id}-file-upload`"
                   class="
                     relative
                     cursor-pointer
@@ -152,7 +152,7 @@
                   <span>Upload a file</span>
                   <input
                     @change="onFileChange"
-                    id="file-upload"
+                    :id="`${props.id}-file-upload`"
                     name="file-upload"
                     type="file"
                     class="sr-only"
@@ -175,6 +175,10 @@ import { XIcon } from "@heroicons/vue/outline/index.js";
 const { compressImage } = useMedia();
 
 const props = defineProps({
+  id: {
+    type: String,
+    default: "",
+  },
   type: {
     type: String,
     default: "couleur",
@@ -260,7 +264,7 @@ const onFileChange = async (e) => {
   );
 
   imagesComputed.value = await Promise.all(
-    await compressedImages.map(async (img) => ({
+    compressedImages.map(async (img) => ({
       ...img,
       data: await readData(img.data),
     }))

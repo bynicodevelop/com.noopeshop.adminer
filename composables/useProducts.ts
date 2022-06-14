@@ -4,6 +4,7 @@ export const useProducts = () => {
     const { params } = useRoute();
 
     const { success } = useNotification();
+
     const productId = ref("");
     const title = ref("");
     const description = ref("");
@@ -35,19 +36,19 @@ export const useProducts = () => {
     }
 
     const onCreate = async (): Promise<void> => {
-        // await useFetch(`/api/v1/products`, {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-Type": "multipart/form-data",
-        //     },
-        //     body: {
-        //         id: productId.value,
-        //         title: title.value,
-        //         description: description.value,
-        //         urlSource: urlSource.value,
-        //         variantes: variantes.value.map(variante => (variante)),
-        //     }
-        // });
+        await useFetch(`/api/v1/products`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+            body: {
+                id: productId.value,
+                title: title.value,
+                description: description.value,
+                urlSource: urlSource.value,
+                variantes: variantes.value.map(variante => (variante)),
+            }
+        });
 
         // TODO: ça récrase la première images de variante
 
@@ -89,6 +90,10 @@ export const useProducts = () => {
     });
 
     const onDeleteVariante = (index: number) => variantes.value.splice(index, 1);
+
+    watch(variantes.value, (value) => {
+        console.log(value);
+    })
 
     return {
         title,

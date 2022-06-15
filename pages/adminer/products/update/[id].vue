@@ -213,12 +213,12 @@
             <Variante
               v-for="(variante, index) in variantes"
               :key="index"
-              :id="`variante-${index}`"
+              :id="`${index}`"
               v-model:type="variante['type']"
               v-model:name="variante['name']"
               v-model:price="variante['price']"
               v-model:images="variante['images']"
-              :close="onClose(index)"
+              :close="onClose"
             />
           </div>
         </div>
@@ -271,5 +271,5 @@ const {
 
 await onGetProduct();
 
-const onClose = (index) => () => onDeleteVariante(index);
+const onClose = async (index) => await onDeleteVariante(index);
 </script>

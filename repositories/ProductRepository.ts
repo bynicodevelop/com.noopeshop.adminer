@@ -137,4 +137,8 @@ export class ProductRepository {
     async delete(id: string): Promise<void> {
         await firestore.collection('products').doc(id).delete();
     }
+
+    async deleteVariante(productId: string, varianteId: string): Promise<void> {
+        await firestore.collection('products').doc(productId).collection('variantes').doc(varianteId).delete();
+    }
 }

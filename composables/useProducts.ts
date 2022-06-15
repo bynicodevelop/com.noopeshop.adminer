@@ -76,7 +76,21 @@ export const useProducts = () => {
         });
 
         products.value = _.filter(products.value, (p) => p.id !== product.id);
+
+        success("Product deleted successfully");
     }
+
+    const onDeleteVariante = async (index: number) => {
+        if (!_.isEmpty(variantes.value[index].id)) {
+            await useFetch(`/api/v1/variantes/${variantes.value[index].id}?productId=${productId.value}`, {
+                method: "DELETE",
+            });
+        }
+
+        variantes.value.splice(index, 1);
+
+        success("Variante deleted successfully");
+    };
 
     const addVariante = () => variantes.value.push({
         type: "",
@@ -84,12 +98,6 @@ export const useProducts = () => {
         price: 0,
         images: null,
     });
-
-    const onDeleteVariante = (index: number) => variantes.value.splice(index, 1);
-
-    watch(variantes.value, (value) => {
-        console.log(value);
-    })
 
     return {
         title,

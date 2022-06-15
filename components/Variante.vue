@@ -3,7 +3,7 @@
     <div class="ml-4 flex-shrink-0 flex absolute top-3 right-3">
       <button
         type="button"
-        @click.prevent="props.close"
+        @click.prevent="onClose"
         class="
           bg-white
           rounded-md
@@ -243,6 +243,8 @@ const imagesComputed = computed({
     emits("update:images", value);
   },
 });
+
+const onClose = () => props.close(props.id);
 
 const onFileChange = async (e) => {
   let files = e.target.files;

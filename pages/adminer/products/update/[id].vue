@@ -98,7 +98,7 @@
               </div>
             </div>
 
-            <!-- <div class="sm:col-span-6">
+            <div class="sm:col-span-6">
               <label
                 for="cover-photo"
                 class="block text-sm font-medium text-gray-700"
@@ -164,8 +164,69 @@
                   <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
                 </div>
               </div>
-            </div> -->
+            </div>
           </div>
+
+          <ul
+            role="list"
+            class="
+              mt-6
+              grid grid-cols-2
+              gap-x-4 gap-y-8
+              sm:grid-cols-8 sm:gap-x-6
+              lg:grid-cols-8
+              xl:gap-x-8
+            "
+          >
+            <li v-for="(url, index) in media" :key="index" class="group">
+              <div
+                class="
+                  relative
+                  mt-5
+                  w-full
+                  min-h-80
+                  bg-gray-200
+                  aspect-w-1 aspect-h-1
+                  rounded-md
+                  overflow-hidden
+                  group-hover:opacity-75
+                  lg:h-80 lg:aspect-none
+                "
+              >
+                <div class="hidden group-hover:block absolute top-2 right-2">
+                  <button
+                    @click.prevent="onDeleteMedia(index)"
+                    type="button"
+                    class="
+                      p-1
+                      bg-white
+                      rounded-full
+                      inline-flex
+                      text-gray-400
+                      hover:text-gray-500
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-offset-2
+                      focus:ring-indigo-500
+                    "
+                  >
+                    <span class="sr-only">Close</span>
+                    <XIcon class="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </div>
+                <img
+                  :src="url"
+                  alt=""
+                  class="
+                    w-full
+                    h-full
+                    object-center object-cover
+                    lg:w-full lg:h-full
+                  "
+                />
+              </div>
+            </li>
+          </ul>
         </div>
 
         <div>
@@ -257,6 +318,8 @@
 </template>
 
 <script setup>
+import { XIcon } from "@heroicons/vue/outline/index.js";
+
 const {
   title,
   description,
@@ -265,6 +328,7 @@ const {
   variantes,
   onGetProduct,
   onUpdated,
+  onDeleteMedia,
   onDeleteVariante,
   addVariante,
 } = useProducts();
@@ -272,4 +336,33 @@ const {
 await onGetProduct();
 
 const onClose = async (index) => await onDeleteVariante(index);
+
+const onFileChange = async (e) => {
+  let files = e.target.files;
+
+  const readData = async (f) =>
+    new Promise((resolve) => {
+      const reader = new FileReader();
+
+      reader.onloadend = () => resolve(reader.result);
+
+      reader.readAsDataURL(f);
+    });
+
+  const compressedImages = await Promise.all(
+    Array.from(files).map(async (file) => ({
+      type: file.type,
+      size: file.size,
+      name: file.name,
+      data: await compressImage(file),
+    }))
+  );
+
+  media.value = await Promise.all(
+    compressedImages.map(async (img) => ({
+      ...img,
+      data: await readData(img.data),
+    }))
+  );
+};
 </script>

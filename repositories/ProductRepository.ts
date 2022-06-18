@@ -19,9 +19,16 @@ export class ProductRepository {
 
         const variantes = await product.ref.collection('variantes').get()
 
+        const { media } = product.data();
+
+        const mediaRepository = new MediaRepository();
+
+        const medialUrl = await Promise.all(media.map(async (media) => await mediaRepository.getUrl(media)));
+
         return {
             id: product.id,
             ...product.data(),
+            media: medialUrl,
             variantes: variantes.docs.map(doc =>
             ({
                 id: doc.id,
@@ -30,7 +37,27 @@ export class ProductRepository {
         }
     }
 
-    async createOrUpdate(data: { uid?: string, title: string, description: string, urlSource: string, variantes: any[] }): Promise<string> {
+    async deleteMedia(productId: string, mediaPath: string): Promise<void> {
+        logger.info("Delete media", { productId, mediaPath });
+
+        const productDocumentSnapshot = await firestore.collection('products').doc(productId).get();
+
+        const product = productDocumentSnapshot.data();
+
+        const mediaRepository = new MediaRepository();
+
+        await mediaRepository.delete(mediaPath);
+
+        const media = product.media.filter(item => item !== mediaPath);
+
+        await productDocumentSnapshot.ref.update({
+            media
+        });
+
+        logger.info("media deleted");
+    }
+
+    async createOrUpdate(data: { uid?: string, title: string, description: string, urlSource: string, media: any[], variantes: any[] }): Promise<string> {
         const { uid, title, description, urlSource, variantes } = data;
 
         if (!_.isEmpty(uid)) {
@@ -45,17 +72,21 @@ export class ProductRepository {
         return this.create(data);
     }
 
-    async create(data: { title: string, description: string, urlSource: string, variantes: any[] }): Promise<string> {
-        const { title, description, urlSource, variantes } = data;
+    async create(data: { title: string, description: string, urlSource: string, media: any[], variantes: any[] }): Promise<string> {
+        console.log(data);
+        const { title, description, urlSource, media, variantes } = data;
 
         const mediaRepository = new MediaRepository();
 
         const date = new Date();
 
+        const pathesMediaFile = await mediaRepository.upload(media);
+
         const productRef = await firestore.collection('products').add({
             title,
             description,
             urlSource,
+            media: pathesMediaFile,
             createdAt: date,
             updateAt: date,
         });
@@ -135,10 +166,41 @@ export class ProductRepository {
     }
 
     async delete(id: string): Promise<void> {
-        await firestore.collection('products').doc(id).delete();
+        const productDocumentSnapshot = await firestore.collection('products').doc(id).get();
+
+        const variantesQuerySnapshot = await productDocumentSnapshot.ref.collection('variantes').get()
+
+        const { media } = productDocumentSnapshot.data();
+
+        const mediaRepository = new MediaRepository();
+
+        await Promise.all(media.map(async (media) => await mediaRepository.delete(media)));
+
+        await Promise.all(variantesQuerySnapshot.docs.map(async (doc) => {
+            const { media } = doc.data();
+
+            await Promise.all(media.map(async (media) => await mediaRepository.delete(media)));
+
+            await doc.ref.delete();
+        }));
+
+        await productDocumentSnapshot.ref.delete();
     }
 
     async deleteVariante(productId: string, varianteId: string): Promise<void> {
-        await firestore.collection('products').doc(productId).collection('variantes').doc(varianteId).delete();
+        const varianteDocumentSnapshot = await firestore
+            .collection('products')
+            .doc(productId)
+            .collection('variantes')
+            .doc(varianteId)
+            .get();
+
+        const { media } = varianteDocumentSnapshot.data();
+
+        const mediaRepository = new MediaRepository();
+
+        await Promise.all(media.map(async (media) => await mediaRepository.delete(media)));
+
+        await varianteDocumentSnapshot.ref.delete();
     }
 }

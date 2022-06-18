@@ -34,4 +34,23 @@ export class MediaRepository {
 
         return await Promise.all(promises);
     }
+
+    async getUrl(path: string): Promise<string> {
+        logger.info('Getting url...');
+
+        const url = await storage.bucket().file(path).getSignedUrl({
+            action: 'read',
+            expires: '03-09-2491'
+        });
+
+        logger.info('Url retrieved', { url });
+
+        return url[0];
+    }
+
+    async delete(path: string): Promise<void> {
+        logger.info('Deleting file...');
+
+        await storage.bucket().file(path).delete();
+    }
 }

@@ -103,7 +103,7 @@
       </div>
 
       <div class="col-span-1">
-        <div>
+        <div v-if="imageData == null">
           <label class="block text-sm font-medium text-gray-700"> Image </label>
           <div
             class="
@@ -164,6 +164,55 @@
             </div>
           </div>
         </div>
+
+        <div v-else class="group">
+          <div
+            class="
+              relative
+              mt-5
+              w-full
+              min-h-80
+              bg-gray-200
+              aspect-w-1 aspect-h-1
+              rounded-md
+              overflow-hidden
+              group-hover:opacity-75
+              lg:h-80 lg:aspect-none
+            "
+          >
+            <div class="hidden group-hover:block absolute top-5 right-5">
+              <button
+                @click.prevent="onDeleteMedia"
+                type="button"
+                class="
+                  p-1
+                  bg-white
+                  rounded-full
+                  inline-flex
+                  text-gray-400
+                  hover:text-gray-500
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-offset-2
+                  focus:ring-indigo-500
+                "
+              >
+                <span class="sr-only">Close</span>
+                <XIcon class="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+            <img
+              :src="imageData"
+              alt="preview"
+              class="
+                w-full
+                h-full
+                object-center object-cover
+                lg:w-full lg:h-full
+              "
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -188,8 +237,8 @@ const props = defineProps({
     default: "",
   },
   price: {
-    type: Number,
-    default: 0,
+    type: String,
+    default: "0",
   },
   images: {
     type: Object,
@@ -237,6 +286,7 @@ const priceComputed = computed({
 
 const imagesComputed = computed({
   get() {
+    console.log("imagesComputed", props.images);
     return props.images;
   },
   set(value) {
@@ -244,15 +294,24 @@ const imagesComputed = computed({
   },
 });
 
+const imageData = ref(null);
+
 const onClose = () => props.close(props.id);
+
+const onDeleteMedia = () => {
+  imagesComputed.value = null;
+  imageData.value = null;
+};
 
 const onFileChange = async (e) => {
   let files = e.target.files;
 
-  const readData = (f) =>
+  const readData = async (f) =>
     new Promise((resolve) => {
       const reader = new FileReader();
+
       reader.onloadend = () => resolve(reader.result);
+      
       reader.readAsDataURL(f);
     });
 
@@ -265,11 +324,15 @@ const onFileChange = async (e) => {
     }))
   );
 
-  imagesComputed.value = await Promise.all(
+  const images = await Promise.all(
     compressedImages.map(async (img) => ({
       ...img,
       data: await readData(img.data),
     }))
   );
+
+  imageData.value = images[0].data;
+
+  imagesComputed.value = images;
 };
 </script>

@@ -25,12 +25,13 @@ export const useProducts = () => {
 
         const { data } = await useFetch<any>(`/api/v1/products/${id}`);
 
-        const { id: uid, title: productTitle, description: productDescription, urlSource: productUrlSource, variantes: productVariante } = data.value.data
+        const { id: uid, title: productTitle, description: productDescription, urlSource: productUrlSource, media: productMedia, variantes: productVariante } = data.value.data
 
         productId.value = uid;
         title.value = productTitle;
         description.value = productDescription;
         urlSource.value = productUrlSource;
+        media.value = productMedia;
         variantes.value = productVariante;
     }
 
@@ -45,6 +46,7 @@ export const useProducts = () => {
                 title: title.value,
                 description: description.value,
                 urlSource: urlSource.value,
+                media: media.value,
                 variantes: variantes.value.map(variante => (variante)),
             }
         });
@@ -63,6 +65,7 @@ export const useProducts = () => {
                 title: title.value,
                 description: description.value,
                 urlSource: urlSource.value,
+                media: media.value,
                 variantes: variantes.value.map(variante => (variante)),
             }
         });
@@ -80,6 +83,18 @@ export const useProducts = () => {
         success("Product deleted successfully");
     }
 
+    const onDeleteMedia = async (index: number) => {
+        await useFetch(`/api/v1/media/delete`, {
+            method: "POST",
+            body: {
+                productId: productId.value,
+                url: media.value[index],
+            }
+        });
+
+        media.value.splice(index, 1);
+    }
+
     const onDeleteVariante = async (index: number) => {
         if (!_.isEmpty(variantes.value[index].id)) {
             await useFetch(`/api/v1/variantes/${variantes.value[index].id}?productId=${productId.value}`, {
@@ -95,7 +110,7 @@ export const useProducts = () => {
     const addVariante = () => variantes.value.push({
         type: "",
         name: "",
-        price: 0,
+        price: "0",
         images: null,
     });
 
@@ -111,6 +126,7 @@ export const useProducts = () => {
         onCreate,
         onUpdated,
         onDelete,
+        onDeleteMedia,
         addVariante,
         onDeleteVariante,
     }

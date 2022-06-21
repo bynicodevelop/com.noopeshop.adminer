@@ -67,9 +67,6 @@
                   "
                 />
               </div>
-              <p class="mt-2 text-sm text-gray-500">
-                Write a few sentences about yourself.
-              </p>
             </div>
 
             <div class="sm:col-span-6">

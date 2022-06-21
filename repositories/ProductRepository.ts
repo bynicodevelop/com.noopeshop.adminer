@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { MediaRepository } from '~~/repositories/MediaRepository';
+import { NotificationRepository } from '~~/repositories/NotificationRepository';
 import { firestore, logger } from '~~/utils/firebase';
 
 export class ProductRepository {
@@ -73,7 +74,6 @@ export class ProductRepository {
     }
 
     async create(data: { title: string, description: string, urlSource: string, media: any[], variantes: any[] }): Promise<string> {
-        console.log(data);
         const { title, description, urlSource, media, variantes } = data;
 
         const mediaRepository = new MediaRepository();
@@ -106,6 +106,15 @@ export class ProductRepository {
                 updateAt: date,
             })
         }
+
+        const notificationRepository = new NotificationRepository();
+
+        await notificationRepository.createNotification({
+            title: "Nouveauté NoopEshop",
+            body: `${title} est disponible`,
+            status: 'pending',
+            productId: productRef.id,
+        })
 
         return productRef.id;
     }

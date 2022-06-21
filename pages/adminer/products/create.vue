@@ -42,7 +42,7 @@
 
             <div class="sm:col-span-6">
               <label
-                for="about"
+                for="description"
                 class="block text-sm font-medium text-gray-700"
               >
                 Description
@@ -64,9 +64,6 @@
                   "
                 />
               </div>
-              <p class="mt-2 text-sm text-gray-500">
-                Write a few sentences about yourself.
-              </p>
             </div>
 
             <div class="sm:col-span-6">
@@ -256,9 +253,18 @@
 <script setup>
 const { compressImage } = useMedia();
 
-const { title, description, urlSource, media, variantes, onCreate, onDeleteVariante, addVariante } = useProducts();
+const {
+  title,
+  description,
+  urlSource,
+  media,
+  variantes,
+  onCreate,
+  onDeleteVariante,
+  addVariante,
+} = useProducts();
 
-const onClose = (index) => () => onDeleteVariante(index)
+const onClose = (index) => () => onDeleteVariante(index);
 
 const onFileChange = async (e) => {
   let files = e.target.files;
@@ -268,7 +274,7 @@ const onFileChange = async (e) => {
       const reader = new FileReader();
 
       reader.onloadend = () => resolve(reader.result);
-      
+
       reader.readAsDataURL(f);
     });
 
